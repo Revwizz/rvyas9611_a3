@@ -3,6 +3,8 @@ from .models import Post
 from django.http import JsonResponse
 
 # Create your views here.
+def is_ajax(request):
+    return request.headers.get('x-requested-with') == 'XMLHttpRequest'
 
 def post_list_and_create(request):
     qs = Post.objects.all()
@@ -27,6 +29,19 @@ def load_post_data_view(request, num_posts):
         }
         data.append(item)
     return JsonResponse({'data' : data[lower : upper], 'size' : size})
+
+def like_unlike_post(request):
+    if is_ajax(request):
+        pk = request.POST.get('pk')
+        obj = Post.objects.get(pk = pk)
+        if request.user in obj.liked.all():
+            liked = False
+            obj.liked.remove(request.user)
+        else:
+            liked = True
+            obj.liked.add(request.user)
+        return JsonResponse({'liked' : liked, 'count' : obj.like_count})
+
 
 def hello_world_view(request):
     return JsonResponse({'text' : 'hello world x2'})
