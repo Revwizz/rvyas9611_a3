@@ -1,23 +1,45 @@
 {% extends "base.html" %}
-{% load static%}
+{% load static %}
 
 {% block scripts %}
-    <script src = "{% static 'posts/main.js' %}" defer></script>
+    <script src="{% static 'posts/main.js' %}" defer></script>
 {% endblock scripts %}
 
-{% block title  %}
+{% block title %}
 posts
 {% endblock title %}
 
 {% block content %}
-    {% comment %}{% for obj in qs %}
-        {{obj.title}} - {{obj.body}} <br>
-    {% endfor %} {% endcomment %}
-    <div id = "posts-box"></div>
-        <div id = "spinner-box" class = "text-center">
-        <div class="spinner-border" role="status"></div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="addPostModal" tabindex="-1" aria-labelledby="addPostModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPostModalLabel">Create post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success">+ add</button>
+                </div>
+            </div>
         </div>
-    <div class = "text-center mb-3" id = "end-box">
-        <button class = "btn btn-primary" id = "load-btn">Load more</button>
+    </div>
+
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-info mb-2" data-bs-toggle="modal" data-bs-target="#addPostModal">
+        Add post
+    </button>
+
+    <div id="posts-box"></div>
+    <div id="spinner-box" class="text-center">
+        <div class="spinner-border" role="status"></div>
+    </div>
+    <div class="text-center mb-3" id="end-box">
+        <button class="btn btn-primary" id="load-btn">Load more</button>
     </div>
 {% endblock content %}
