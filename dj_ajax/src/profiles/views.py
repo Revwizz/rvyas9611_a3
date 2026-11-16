@@ -4,7 +4,8 @@ from .forms import ProfileForm
 from django.http import JsonResponse
 
 # Create your views here.
-
+def is_ajax(request):
+    return request.headers.get('x-requested-with') == 'XMLHttpRequest'
 
 def my_profile_view(request):
     obj = Profile.objects.get(user = request.user)
