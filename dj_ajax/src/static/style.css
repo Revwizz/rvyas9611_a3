@@ -1,3 +1,12 @@
+/*
+ * FILE          : style.css
+ * PROJECT       : SENG2045 - Assignment 3
+ * PROGRAMMER    : Ritik Vyas
+ * FIRST VERSION : 2026-11-14
+ * DESCRIPTION   : Custom styles for the app, used together with Bootstrap 5.
+ *                 Hides elements on request and styles the Dropzone upload area.
+ */
+
 .not-visible {
     display: none;
 }
