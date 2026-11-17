@@ -1,23 +1,40 @@
-console.log('hello world')
+// FILE          : main.js
+// PROJECT       : SENG2045 - Assignment 3
+// PROGRAMMER    : Ritik Vyas
+// FIRST VERSION : 2026-11-14
+// DESCRIPTION   : Handles the main posts page. Loads posts with Ajax (three at a
+//                 time), handles liking and unliking posts, creating new posts
+//                 from the modal form, uploading photos with Dropzone, and
+//                 showing an alert after a post is deleted.
 
+
+// page elements
 const postsBox = document.getElementById('posts-box')
 const spinnerBox = document.getElementById('spinner-box')
 const loadBtn = document.getElementById('load-btn')
 const endBox = document.getElementById('end-box')
 
-
+// create post form with inputs
 const postForm = document.getElementById('post-form')
 const title = document.getElementById('id_title')
 const body = document.getElementById('id_body')
 const csrf = document.getElementsByName('csrfmiddlewaretoken')
 
-const url = window.location.href
+const url = window.location.href    // current page address
 
 const alertBox = document.getElementById('alert-box')
 
+// dropzone and modal buttons
 const dropzone = document.getElementById('my-dropzone')
 const addBtn = document.getElementById('add-btn')
 const closeBtns = [...document.getElementsByClassName('add-modal-close')]
+
+// FUNCTION    : getCookie
+// DESCRIPTION : Reads the value of a cookie by its name. Used to get Django's
+//               CSRF token for the Ajax POST requests.
+// PARAMETERS  : name : the name of the cookie to find
+// RETURNS     : the cookie's value, or null if it is not found
+// SOURCE      : Django documentation (CSRF with Ajax)
 
 const getCookie = (name) => {
     let cookieValue = null;
@@ -41,6 +58,13 @@ if(deleted){
     handleAlerts('danger', `deleted "${deleted}"`)
     localStorage.clear()
 }
+
+// FUNCTION    : likeUnlikePosts
+// DESCRIPTION : Adds a submit listener to every like/unlike form on the page.
+//               On submit, sends the post id to the server with Ajax and
+//               updates the button text and like count without reloading.
+// PARAMETERS  : none
+// RETURNS     : nothing
 
 const likeUnlikePosts = () =>{
     const likeUnlikeForms = [...document.getElementsByClassName('like-unlike-forms')]
@@ -68,6 +92,14 @@ const likeUnlikePosts = () =>{
 }
 
 let visible = 3
+
+// FUNCTION    : getData
+// DESCRIPTION : Requests the next group of posts from the server with Ajax,
+//               adds each post to the page as a Bootstrap card, connects the
+//               like buttons, and hides the Load more button when there are
+//               no more posts.
+// PARAMETERS  : none
+// RETURNS     : nothing
 
 const getData = () => {
     $.ajax({
@@ -118,6 +150,9 @@ const getData = () => {
 })
 }
 
+// EVENT       : Load more button click
+// DESCRIPTION : Shows the spinner and requests three more posts.
+
 loadBtn.addEventListener('click', () =>{
     spinnerBox.classList.remove('not-visible')
     visible += 3
@@ -125,6 +160,11 @@ loadBtn.addEventListener('click', () =>{
 })
 
 let newPostId = null
+
+// EVENT       : Create post form submit
+// DESCRIPTION : Sends the new post's title and body to the server with Ajax.
+//               On success, adds the new post to the top of the list,
+//               connects its like button, and shows a success alert.
 
 postForm.addEventListener('submit', e=>{
     e.preventDefault()
@@ -172,9 +212,16 @@ postForm.addEventListener('submit', e=>{
     })
 })
 
+// EVENT       : Add button click
+// DESCRIPTION : Shows the Dropzone area so photos can be added to the new post.
+
 addBtn.addEventListener('click', ()=> {
     dropzone.classList.remove('not-visible')
 })
+
+// EVENT       : Modal close buttons click
+// DESCRIPTION : Resets the create post form, hides the Dropzone area again,
+//               and removes any files that were added to Dropzone.
 
 closeBtns.forEach(btn => btn.addEventListener('click', ()=> {
     postForm.reset()

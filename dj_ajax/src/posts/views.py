@@ -1,3 +1,12 @@
+# FILE          : views.py
+# PROJECT       : SENG2045 - Assignment 3
+# PROGRAMMER    : Ritik Vyas
+# FIRST VERSION : 2026-11-14
+# DESCRIPTION   : Views for the posts app. Shows the main page and detail page,
+#                 and handles the Ajax requests for loading posts, creating,
+#                 liking, updating and deleting posts, and uploading photos.
+# 
+
 from django.shortcuts import render
 from .models import Post, Photo
 from django.http import JsonResponse, HttpResponse
@@ -5,11 +14,19 @@ from .forms import PostForm
 from profiles.models import Profile
 from .utils import action_permission
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 
 def is_ajax(request):
     return request.headers.get('x-requested-with') == 'XMLHttpRequest'
 
 # Create your views here.
+
+# FUNCTION    : post_list_and_create
+# DESCRIPTION : Shows the main posts page with the create post form. When the
+#               form is sent with Ajax and is valid, saves the new post with
+#               the logged-in user as the author.
+# PARAMETERS  : request : the HTTP request sent by the browser
+# RETURNS     : JsonResponse with the new post's data, or the main page
 
 @login_required
 def post_list_and_create(request):
@@ -34,6 +51,13 @@ def post_list_and_create(request):
 
     return render(request, 'posts/main.html', context)
 
+# FUNCTION    : post_detail
+# DESCRIPTION : Shows the detail page for one post, with an empty form that
+#               detail.js fills in for the update modal.
+# PARAMETERS  : request : the HTTP request sent by the browser
+#               pk      : the id of the post
+# RETURNS     : the rendered detail page
+
 @login_required
 def post_detail(request, pk):
     obj = Post.objects.get(pk = pk)
@@ -45,6 +69,13 @@ def post_detail(request, pk):
     }
 
     return render(request, 'posts/detail.html', context)
+
+# FUNCTION    : load_post_data_view
+# DESCRIPTION : Sends a group of three posts for the main page. num_posts is
+#               the total shown so far, so the slice gives the next three.
+# PARAMETERS  : request   : the HTTP request sent by the browser
+#               num_posts : how many posts should be shown after this request
+# RETURNS     : JsonResponse with the posts' data and the total number of posts
 
 @login_required
 def load_post_data_view(request, num_posts):
@@ -68,6 +99,15 @@ def load_post_data_view(request, num_posts):
             data.append(item)
         return JsonResponse({'data' : data[lower : upper], 'size' : size})
 
+# FUNCTION    : post_detail_data_view
+# DESCRIPTION : Sends one post's data for the detail page, including the
+#               author and the logged-in user, so detail.js can decide
+#               whether to show the Update and Delete buttons.
+# PARAMETERS  : request : the HTTP request sent by the browser
+#               pk      : the id of the post
+# RETURNS     : JsonResponse with the post's data,
+#               otherwise a redirect to the main page
+
 @login_required
 def post_detail_data_view(request, pk):
     if is_ajax(request):
@@ -80,7 +120,12 @@ def post_detail_data_view(request, pk):
             'logged_in': request.user.username,
         }
         return JsonResponse({'data': data})
-    return redirect('posts:main-board')
+
+# FUNCTION    : like_unlike_post
+# DESCRIPTION : Adds the logged-in user's like to a post, or removes it if
+#               they already liked it.
+# PARAMETERS  : request : the HTTP request, with the post's pk in POST data
+# RETURNS     : JsonResponse with the new like state and like count
 
 @login_required
 def like_unlike_post(request):
@@ -94,6 +139,13 @@ def like_unlike_post(request):
             liked = True
             obj.liked.add(request.user)
         return JsonResponse({'liked' : liked, 'count' : obj.like_count})
+
+# FUNCTION    : update_post
+# DESCRIPTION : Saves a new title and body for a post. Only the post's author
+#               can do this
+# PARAMETERS  : request : the HTTP request, with title and body in POST data
+#               pk      : the id of the post
+# RETURNS     : JsonResponse with the updated title and body
 
 @login_required
 @action_permission
@@ -111,6 +163,13 @@ def update_post(request, pk):
         'body': new_body,
     })
 
+# FUNCTION    : delete_post
+# DESCRIPTION : Deletes a post. Only the post's author can do this, 
+#               and only through an Ajax request.
+# PARAMETERS  : request : the HTTP request sent by the browser
+#               pk      : the id of the post
+# RETURNS     : JsonResponse with a short message
+
 @login_required
 @action_permission
 def delete_post(request, pk):
@@ -120,6 +179,12 @@ def delete_post(request, pk):
         obj.delete()
         return JsonResponse({'msg' : 'some message'})
     return JsonResponse({'msg' : 'access denied - ajax only'})
+
+# FUNCTION    : image_upload_view
+# DESCRIPTION : Receives a photo uploaded by Dropzone and saves it as a Photo
+#               linked to the newly created post.
+# PARAMETERS  : request : the HTTP request, with the file and new_post_id
+# RETURNS     : an empty HttpResponse
 
 @login_required
 def image_upload_view(request):
