@@ -14,7 +14,7 @@ from .forms import PostForm
 from profiles.models import Profile
 from .utils import action_permission
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 def is_ajax(request):
     return request.headers.get('x-requested-with') == 'XMLHttpRequest'
@@ -98,6 +98,7 @@ def load_post_data_view(request, num_posts):
             }
             data.append(item)
         return JsonResponse({'data' : data[lower : upper], 'size' : size})
+    return redirect('posts:main-board')
 
 # FUNCTION    : post_detail_data_view
 # DESCRIPTION : Sends one post's data for the detail page, including the
@@ -120,6 +121,7 @@ def post_detail_data_view(request, pk):
             'logged_in': request.user.username,
         }
         return JsonResponse({'data': data})
+    return redirect('posts:main-board')
 
 # FUNCTION    : like_unlike_post
 # DESCRIPTION : Adds the logged-in user's like to a post, or removes it if
@@ -139,6 +141,7 @@ def like_unlike_post(request):
             liked = True
             obj.liked.add(request.user)
         return JsonResponse({'liked' : liked, 'count' : obj.like_count})
+    return redirect('posts:main-board')
 
 # FUNCTION    : update_post
 # DESCRIPTION : Saves a new title and body for a post. Only the post's author

@@ -10,6 +10,7 @@ from .models import Profile
 from .forms import ProfileForm
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
 
 # Create your views here.
 
